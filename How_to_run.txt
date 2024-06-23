@@ -1,0 +1,32 @@
+(1) INSTALL Docker and docker-compose (on Windows or Linux)
+For Ubuntu: add your user to docker group or use sudo instead
+(2) git clone git@github.com:PavelPll/Sentiment_ETL_Analysis.git
+(3) cd Sentiment_ETL_Analysis
+(4) Start docker containers
+docker-compose up -d
+(5) Go inside the docker container with Jupyter notebook
+docker exec -it c1 bash
+(6) cd src
+you are here: /home/project/work/src
+The code in the folders: Extract, Transform, Load and flask
+(7) Start jupyter notebook
+jupyter notebook --allow-root --ip 0.0.0.0
+(8) Go to Extract folder
+USE Extract_single.ipynb (or Extract_single.py) to extract some categories
+OR
+USE Extract_multiple.py to extract all categories using multiprocessing
+(9) Go to Transform folder
+USE Transform.ipynb to concatenate all single extraction (see in data_csv/i_j.csv) to the final dataframe frame (data_csv/capterra.csv)
+(10) Go to Load folder
+In order to load capterra.csv into MongoDB database:
+OPEN mongoDB_load.ipynb with jupyter notebook 
+OR run python mongoDB_load.py
+(11) Go to flask folder
+OPEN flask.ipynb with jupyter notebook
+ 
+*** to restart flask container and see logs
+sudo docker logs -f flask
+sudo docker restart flask
+
+
+

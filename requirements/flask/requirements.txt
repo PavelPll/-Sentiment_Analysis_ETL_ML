@@ -1,0 +1,14 @@
+
+flask==3.0.0
+
+pymongo==4.5.0
+
+transformers
+torch
+# pickle5
+
+lightgbm
+scikit-learn
+SentencePiece
+
+

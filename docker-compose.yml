@@ -1,0 +1,91 @@
+version: '2.0'
+services:
+  c1:
+    image: cont
+    container_name: c1
+#    network_mode: "host"
+    privileged: true
+    build:
+      dockerfile: ./Dockerfile
+    volumes:
+      - ./:/home/project/work
+      #- ./data_mongo:/data/db
+    environment:
+        SSH_AUTH_SOCK: /ssh-agent
+    networks: 
+      - compose-network
+    ports:
+      - '8888:8888'
+#      - target: 8888
+#      - published: 8889
+#      - protocol: tcp
+    tty: true
+
+  database:
+    container_name: my_mongo
+    image: mongo:5.0
+    privileged: true
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=admin
+      - MONGO_INITDB_DATABASE=auth
+      - MONGO_INITDB_ROOT_PASSWORD=pass
+      - MONGO_INITDB_DATABASE=sentiments
+    networks: 
+      - compose-network
+    ports:
+      - '27017:27017'
+    volumes: 
+      #- ./data_mongo:/data/db
+      - ./requirements/mongo/data/db:/data/db
+      - ./requirements/mongo/data/json:/data/json
+      - ./requirements/mongo/init:/docker-entrypoint-initdb.d
+
+  mongoexpress:
+    container_name: mongo-express
+    image: mongo-express:0.54
+    privileged: true
+    depends_on:
+      - database
+    networks: 
+      - compose-network
+    environment:
+      - ME_CONFIG_MONGODB_SERVER=my_mongo
+      - ME_CONFIG_MONGODB_ADMINUSERNAME=admin
+      - ME_CONFIG_MONGODB_ADMINPASSWORD=pass
+      - ME_CONFIG_MONGODB_ENABLE_ADMIN=true
+      - ME_CONFIG_BASICAUTH_USERNAME=admin
+      - ME_CONFIG_BASICAUTH_PASSWORD=pass
+    ports:
+      - '8081:8081'
+    volumes: 
+      #- ./data_mongo:/data/db   
+      - ./requirements/mongo/data/db:/data/db
+  
+  mysql:
+    image: mysql:latest
+    container_name: mysql
+    volumes:
+      - ./requirements/mysql/data/data_mysql:/var/lib/mysql
+    restart: always
+    networks: 
+      - compose-network
+    ports:
+      - 3306:3306
+    environment:
+      MYSQL_ROOT_PASSWORD: Password 
+      
+  flask:
+    depends_on:
+      - database
+    container_name: flask
+    build: ./requirements/flask
+    image: flask
+    networks:
+      - compose-network
+    ports:
+      - 5000:5000
+    volumes:
+      - ./requirements/flask/app:/app/
+
+networks:
+  compose-network:
